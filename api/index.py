@@ -1,45 +1,18 @@
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 import numpy as np
 import json
 
 app = FastAPI()
 
-# VERY IMPORTANT CORS SETUP
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Load JSON data
 with open("q-vercel-latency (1).json", "r") as f:
     telemetry = json.load(f)
 
 
-# Root route
 @app.get("/")
 async def root():
     return {"message": "working"}
 
 
-# Explicit OPTIONS handler
-@app.options("/api/latency")
-async def options_handler():
-    return JSONResponse(
-        content={"message": "ok"},
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "*",
-        },
-    )
-
-
-# POST endpoint
 @app.post("/api/latency")
 async def latency(request: Request):
 
@@ -64,4 +37,4 @@ async def latency(request: Request):
             "breaches": len([x for x in latencies if x > threshold]),
         }
 
-    return JSONResponse(content=result, headers={"Access-Control-Allow-Origin": "*"})
+    return result
